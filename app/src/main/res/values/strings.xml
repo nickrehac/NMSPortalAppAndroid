@@ -3,4 +3,5 @@
     <string name="title_activity_coordinate_conversion">CoordinateConversionActivity</string>
     <string name="title_activity_glyph_pinpointer">GlyphPinpointerActivity</string>
     <string name="title_activity_addresses_of_interest">AddressesOfInterestActivity</string>
+    <string name="title_activity_bases_of_interest">BasesOfInterestActivity</string>
 </resources>

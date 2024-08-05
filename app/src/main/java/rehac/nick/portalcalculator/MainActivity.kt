@@ -43,18 +43,6 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun ImgTextButton(image: Int, text: String, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
-        Box(modifier = Modifier
-            .padding(Dp(20f))
-            .clickable { onClick() }) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Image(painter = painterResource(id = image), contentDescription = text, modifier = modifier.size(Dp(150f)))
-                Text(text = text, fontSize = TextUnit(25f, TextUnitType.Sp))
-            }
-        }
-    }
-
-    @Composable
     fun MainMenu(modifier: Modifier = Modifier) {
         val context = LocalContext.current
         Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
@@ -67,7 +55,8 @@ class MainActivity : ComponentActivity() {
                 context.startActivity(pinpointerActivity)
             }
             ImgTextButton(image = R.drawable.ic_launcher_background, text = "Addresses of Interest") {
-
+                val addressesOfInterestActivity = Intent(context, AddressesOfInterestActivity::class.java)
+                context.startActivity(addressesOfInterestActivity)
             }
 
         }
@@ -77,5 +66,17 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun MainMenuPreview() {
         MainMenu()
+    }
+}
+
+@Composable
+fun ImgTextButton(image: Int, text: String, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
+    Box(modifier = Modifier
+        .padding(Dp(20f))
+        .clickable { onClick() }) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Image(painter = painterResource(id = image), contentDescription = text, modifier = modifier.size(Dp(150f)))
+            Text(text = text, fontSize = TextUnit(25f, TextUnitType.Sp))
+        }
     }
 }
