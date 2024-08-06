@@ -159,8 +159,14 @@ class BasesOfInterestActivity : ComponentActivity() {
                                     ) {
                                         if(entry.thumbnail == null) {
                                             Image(
-                                                painterResource(R.drawable.ic_launcher_background),
-                                                null
+                                                painterResource(R.drawable.noun_picture_rectangle),
+                                                null,
+                                                modifier = Modifier
+                                                    .height(80.dp)
+                                                    .width(140.dp)
+                                                    .padding(top = 20.dp)
+                                                    .scale(2.3f),
+                                                contentScale = ContentScale.Fit
                                             )
                                         } else {
                                             Image(

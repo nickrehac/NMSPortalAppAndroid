@@ -96,13 +96,27 @@ fun retrievePageLocationTablesType1(pageName: String) : Result<ArrayList<Locatio
         urlConnection.disconnect()
         val wikiPageDocument = Jsoup.parse(pageJSON.getJSONObject("parse").getJSONObject("text").getString("*"))
         wikiPageDocument.getElementsByClass("wikitable").forEach {table ->
-            val tableTitle = table.previousElementSibling()!!.child(0).text()
+            var tableTitleCursor = table.previousElementSibling()!!
+            while(true) {
+                if(tableTitleCursor.firstElementChild()?.hasClass("mw-headline") == true) {
+                    tableTitleCursor = tableTitleCursor.firstElementChild()!!
+                    break
+                }
+                if(tableTitleCursor.firstElementChild()?.nextElementSibling()?.hasClass("mw-headline") == true){
+                    tableTitleCursor = tableTitleCursor.firstElementChild()!!.nextElementSibling()!!
+                    break
+                }
+                tableTitleCursor = tableTitleCursor.previousElementSibling()!!
+            }
+
+            val tableTitle = tableTitleCursor.text()
+
             val entries = ArrayList<LocationOfInterest>()
             table.child(0).children().forEach {row ->
                 row.children().forEach {column ->
                     column.child(0).let {
 
-                        val entryBitmap = loadBitmapFromURL("https:${it.child(0).child(0).child(0).attr("src")}")
+                        val entryBitmap = loadBitmapFromURL("https:${it.firstElementChild()?.firstElementChild()?.firstElementChild()?.attr("src")}")
                         val entryTitle = it.child(2).text()
                         val entryPage = it.child(2).attr("href").substring(6)
                         val description = it.text().substring(1+entryTitle.length)

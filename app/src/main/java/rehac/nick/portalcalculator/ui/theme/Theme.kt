@@ -14,19 +14,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
+import rehac.nick.portalcalculator.AddressesOfInterestActivity
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Blue80,
+    primary = Color(0xFF131E58),
+    onPrimary = Color(0xFFFFD53C),
     secondary = PurpleGrey80,
-    tertiary = Pink80
+    tertiary = Pink80,
+    background = Color(0xFF000000)
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Blue40,
+    primary = Color(0xFF82CEFC),
+    onPrimary = Color(0xFF464646),
     secondary = PurpleGrey40,
     tertiary = Pink40,
-    background = Color(0xFFFFFBFE)
+    background = Color(0xFFFFFFFF)
 
     /* Other default colors to override
 
