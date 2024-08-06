@@ -14,6 +14,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +27,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotApplyResult
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -83,19 +85,24 @@ class AddressesOfInterestActivity : ComponentActivity() {
         Column(
             modifier = modifier
                 .height(Dp(100f))
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ImgTextButton(image = R.drawable.ic_launcher_background, text = "Bases") {
                 context.startActivity(Intent(context, BasesOfInterestActivity::class.java)
-                    .putExtra(KEY_PAGE_TO_USE, "Bases"))
+                    .putExtra(KEY_PAGE_TO_USE, "Bases")
+                    .putExtra(KEY_PAGE_TITLE, "BASES"))
             }
             ImgTextButton(image = R.drawable.ic_launcher_background, text = "Colonies") {
                 context.startActivity(Intent(context, BasesOfInterestActivity::class.java)
-                    .putExtra(KEY_PAGE_TO_USE, "Colonies"))
+                    .putExtra(KEY_PAGE_TO_USE, "Colony_Catalogue")
+                    .putExtra(KEY_PAGE_TITLE, "COLONIES"))
             }
             ImgTextButton(image = R.drawable.ic_launcher_background, text = "Official Bodies") {
                 context.startActivity(Intent(context, BasesOfInterestActivity::class.java)
-                    .putExtra(KEY_PAGE_TO_USE, "Celestial_Bodies"))
+                    .putExtra(KEY_PAGE_TO_USE, "Celestial_Bodies")
+                    .putExtra(KEY_PAGE_TITLE, "OFFICIAL BODIES"))
             }
         }
     }
