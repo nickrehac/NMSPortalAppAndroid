@@ -83,15 +83,25 @@ class LocationTable(val tableTitle: String, val entries: ArrayList<LocationOfInt
     }
 }
 
-fun retrievePageLocationTablesType1(pageName: String) : Result<ArrayList<LocationTable>> {
-    val locationTableList = ArrayList<LocationTable>()
-    var retval = Result.success(locationTableList)
+fun getPageJSON(pageName: String) : Result<JSONObject> {
+    var retval: Result<JSONObject>
     val urlConnection = URL("https://nmsgalactichub.miraheze.org/w/api.php?action=parse&page=$pageName&format=json").openConnection() as HttpURLConnection
     urlConnection.setRequestProperty("User-Agent", APP_USER_AGENT)
     try {
         val istream = BufferedInputStream(urlConnection.inputStream)
-        val pageJSON = JSONObject(InputStreamReader(istream).readText())
+        retval = Result.success(JSONObject(InputStreamReader(istream).readText()))
+    } catch (e: Exception) {
+        retval = Result.failure(e)
         urlConnection.disconnect()
+    }
+    return retval
+}
+
+fun retrievePageLocationTablesType1(pageName: String) : Result<ArrayList<LocationTable>> {
+    val locationTableList = ArrayList<LocationTable>()
+    var retval = Result.success(locationTableList)
+    val pageJSON = getPageJSON(pageName).getOrElse { return Result.failure(it) }
+    try {
         val wikiPageDocument = Jsoup.parse(pageJSON.getJSONObject("parse").getJSONObject("text").getString("*"))
         wikiPageDocument.getElementsByClass("wikitable").forEach {table ->
             var tableTitleCursor = table.previousElementSibling()!!
@@ -133,7 +143,6 @@ fun retrievePageLocationTablesType1(pageName: String) : Result<ArrayList<Locatio
             locationTableList.add(LocationTable(tableTitle, entries))
         }
     } catch(e: Exception) {
-        urlConnection.disconnect()
         retval = Result.failure(e)
     }
     return retval
@@ -142,12 +151,8 @@ fun retrievePageLocationTablesType1(pageName: String) : Result<ArrayList<Locatio
 fun retrievePageLocationTablesType2(pageName: String) : Result<ArrayList<LocationTable>> {
     val locationTableList = ArrayList<LocationTable>()
     var retval = Result.success(locationTableList)
-    val urlConnection = URL("https://nmsgalactichub.miraheze.org/w/api.php?action=parse&page=$pageName&format=json").openConnection() as HttpURLConnection
-    urlConnection.setRequestProperty("User-Agent", APP_USER_AGENT)
+    val pageJSON = getPageJSON(pageName).getOrElse { return Result.failure(it) }
     try {
-        val istream = BufferedInputStream(urlConnection.inputStream)
-        val pageJSON = JSONObject(InputStreamReader(istream).readText())
-        urlConnection.disconnect()
         val wikiPageDocument = Jsoup.parse(pageJSON.getJSONObject("parse").getJSONObject("text").getString("*"))
         wikiPageDocument.getElementsByClass("wikitable").forEach {table ->
             var tableTitleCursor = table.previousElementSibling()!!
@@ -189,7 +194,6 @@ fun retrievePageLocationTablesType2(pageName: String) : Result<ArrayList<Locatio
             locationTableList.add(LocationTable(tableTitle, entries))
         }
     } catch(e: Exception) {
-        urlConnection.disconnect()
         retval = Result.failure(e)
     }
     return retval
