@@ -41,6 +41,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rehac.nick.portalcalculator.ui.theme.PortalCalculatorTheme
+import java.net.UnknownHostException
 
 const val KEY_PAGE_TO_USE = "KEY_PAGE_TO_USE"
 const val KEY_PAGE_TITLE = "KEY_PAGE_TITLE"
@@ -200,7 +201,9 @@ class BasesOfInterestActivity : ComponentActivity() {
                         fontSize = 40f.sp
                     )
                     Text(
-                        error.message!!,
+                        if(error is UnknownHostException)
+                            "Not Connected to Internet.\nPlease Check Your Connection."
+                        else error.message!!,
                         color = androidx.compose.ui.graphics.Color.Red,
                         modifier = Modifier.padding(Dp(30f)),
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize
@@ -211,7 +214,8 @@ class BasesOfInterestActivity : ComponentActivity() {
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
                         Text(
-                            "<-Back"
+                            "<-Back",
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }
