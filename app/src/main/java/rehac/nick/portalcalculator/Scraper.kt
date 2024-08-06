@@ -209,6 +209,8 @@ fun loadBitmapFromURL(url: String) : Bitmap? {
     return retval
 }
 
+//TODO:separate JSON retrieval from parsing into DOM
+
 fun retrieveBitmap(imageName: String) : Bitmap? {
     var retval : Bitmap? = null
 
