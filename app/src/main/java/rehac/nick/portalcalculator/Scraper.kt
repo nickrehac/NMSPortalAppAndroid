@@ -30,8 +30,7 @@ class LocationOfInterest(
         parcel.readString()!!,
         parcel.readString()!!,
         parcel.readString()!!
-    ) {
-    }
+    )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeParcelable(thumbnail, 0)
@@ -62,8 +61,7 @@ class LocationTable(val tableTitle: String, val entries: ArrayList<LocationOfInt
     constructor(parcel: Parcel) : this(
         parcel.readString().orEmpty(),
         parcel.readArrayList(null, LocationOfInterest::class.java) ?: ArrayList<LocationOfInterest>()
-    ) {
-    }
+    )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(tableTitle)

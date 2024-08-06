@@ -14,9 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
-import rehac.nick.portalcalculator.AddressesOfInterestActivity
 
 private val DarkColorScheme = darkColorScheme(
     primary = Color(0xFF131E58),
