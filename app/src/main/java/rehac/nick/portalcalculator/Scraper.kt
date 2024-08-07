@@ -17,26 +17,32 @@ import javax.net.ssl.HttpsURLConnection
 
 class LocationOfInterest(
     val thumbnail: Bitmap?,
+    val fullImageName: String?,
     val name: String,
     val page: String?,
     val description: String,
+    val galaxyAddress: String?,
     val portalAddress: String?
 ) : Parcelable {
 
 
     constructor(parcel: Parcel) : this(
-        parcel.readParcelable(Bitmap::class.java.classLoader, Bitmap::class.java)!!,
+        parcel.readParcelable(Bitmap::class.java.classLoader, Bitmap::class.java),
+        parcel.readString(),
         parcel.readString()!!,
+        parcel.readString(),
         parcel.readString()!!,
-        parcel.readString()!!,
-        parcel.readString()!!
+        parcel.readString(),
+        parcel.readString()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeParcelable(thumbnail, 0)
+        parcel.writeString(fullImageName)
         parcel.writeString(name)
         parcel.writeString(page)
         parcel.writeString(description)
+        parcel.writeString(galaxyAddress)
         parcel.writeString(portalAddress)
     }
 
@@ -54,6 +60,30 @@ class LocationOfInterest(
         }
     }
 
+}
+
+fun finalizeLocationData(location: LocationOfInterest): LocationOfInterest {
+
+    if(location.page == null) return location
+
+    val pageJSON = getPageJSON(location.page).getOrElse { return location }
+        .getJSONObject("parse")
+
+    var thumbnail: Bitmap? = location.fullImageName?.let { retrieveBitmap(it) }
+
+    val wikiData = Jsoup.parse(pageJSON.getJSONObject("text").getString("*"))
+
+
+
+    return LocationOfInterest(
+        thumbnail ?: location.thumbnail,
+        location.fullImageName,
+        location.name,
+        location.page,
+        location.description,
+        location.galaxyAddress,
+        location.portalAddress
+    )
 }
 
 class LocationTable(val tableTitle: String, val entries: ArrayList<LocationOfInterest>) :
@@ -125,16 +155,19 @@ fun retrievePageLocationTablesType1(pageName: String) : Result<ArrayList<Locatio
                     column.child(0).let {
 
                         val entryBitmap = loadBitmapFromURL("https:${it.firstElementChild()?.firstElementChild()?.firstElementChild()?.attr("src")}")
+                        val entryFullImageName = it.firstElementChild()?.firstElementChild()?.attr("href")?.substring(6)
                         val entryTitle = it.child(2).text()
                         val entryPage = it.child(2).attr("href").substring(6)
                         val description = it.text().substring(1+entryTitle.length)
 
                         entries.add(LocationOfInterest(
                             entryBitmap,
+                            entryFullImageName,
                             entryTitle,
                             entryPage,
                             description,
-                            ""
+                            null,
+                            null
                         ))
 
                     }
@@ -163,16 +196,25 @@ fun retrievePageLocationTablesType2(pageName: String) : Result<ArrayList<Locatio
             val entries = ArrayList<LocationOfInterest>()
             table.child(0).children().drop(1).forEach {row ->
                 val entryBitmap = loadBitmapFromURL("https:${row.firstElementChild()?.firstElementChild()?.firstElementChild()?.firstElementChild()?.attr("src")}")
+                val fullImageName = row.firstElementChild()?.firstElementChild()?.firstElementChild()?.attr("href")?.substring(6)
                 val entryTitle = row.child(1).child(0).text()
                 val entryPage = row.child(1).firstElementChild()?.attr("href")?.ifEmpty { null }?.substring(6)
                 var portalAddress = ""
+                var galaxyAddress: String? = null
                 var descriptionBuilder = ""
                 var descriptionCursor = row.child(3).firstChild()
 
                 while(descriptionCursor != null) {
                     if(descriptionCursor is Element) {
                         if(descriptionCursor.hasClass("glyphfont small-glyph")) {
+
                             portalAddress = descriptionCursor.text()
+
+                            descriptionCursor = descriptionCursor.previousSibling()!!.previousSibling()!!
+
+                            galaxyAddress = (descriptionCursor as TextNode).text()
+
+                            descriptionBuilder = descriptionBuilder.substring(0, descriptionBuilder.length - galaxyAddress.length)
                             break
                         }
                         descriptionBuilder += descriptionCursor.text()
@@ -185,9 +227,11 @@ fun retrievePageLocationTablesType2(pageName: String) : Result<ArrayList<Locatio
 
                 entries.add(LocationOfInterest(
                     entryBitmap,
+                    fullImageName,
                     entryTitle,
                     entryPage,
                     descriptionBuilder,
+                    galaxyAddress,
                     portalAddress
                 ))
             }
@@ -213,7 +257,6 @@ fun loadBitmapFromURL(url: String) : Bitmap? {
     return retval
 }
 
-//TODO:separate JSON retrieval from parsing into DOM
 
 fun retrieveBitmap(imageName: String) : Bitmap? {
     var retval : Bitmap? = null

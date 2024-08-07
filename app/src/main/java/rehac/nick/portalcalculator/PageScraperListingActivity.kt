@@ -1,5 +1,6 @@
 package rehac.nick.portalcalculator
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -30,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -106,6 +108,7 @@ class BasesOfInterestActivity : ComponentActivity() {
 
     @Composable
     fun MainContent(wikiData: ArrayList<LocationTable>) {
+        val context = LocalContext.current
         PortalCalculatorTheme {
             Surface(
                 modifier = Modifier.fillMaxSize(),
@@ -138,7 +141,10 @@ class BasesOfInterestActivity : ComponentActivity() {
                             )
                             for (entry in table.entries) {
                                 Button(
-                                    onClick = {},
+                                    onClick = {
+                                              context.startActivity(Intent(context, LocationListingDetailsActivity::class.java)
+                                                  .putExtra(KEY_LOCATION_INFO, entry))
+                                    },
                                     shape = MaterialTheme.shapes.extraSmall,
                                     modifier = Modifier.padding(10.dp)
                                 ) {
@@ -231,22 +237,28 @@ class BasesOfInterestActivity : ComponentActivity() {
                 "Section Name 1",
                 arrayListOf(
                     LocationOfInterest(
-                        Bitmap.createBitmap(100,100,Bitmap.Config.ARGB_8888),
+                        null,
+                        null,
                         "Name 1",
                         "",
                         "",
+                        "",
                         ""
                     ),
                     LocationOfInterest(
-                        Bitmap.createBitmap(100,100,Bitmap.Config.ARGB_8888),
+                        null,
+                        null,
                         "Name 2",
                         "",
                         "",
+                        "",
                         ""
                     ),
                     LocationOfInterest(
-                        Bitmap.createBitmap(100,100,Bitmap.Config.ARGB_8888),
+                        null,
+                        null,
                         "Name 3",
+                        "",
                         "",
                         "",
                         ""
@@ -257,22 +269,28 @@ class BasesOfInterestActivity : ComponentActivity() {
                 "Section Name 2",
                 arrayListOf(
                     LocationOfInterest(
-                        Bitmap.createBitmap(100,100,Bitmap.Config.ARGB_8888),
+                        null,
+                        null,
                         "Name 1",
                         "",
                         "",
+                        "",
                         ""
                     ),
                     LocationOfInterest(
-                        Bitmap.createBitmap(100,100,Bitmap.Config.ARGB_8888),
+                        null,
+                        null,
                         "Name 2",
                         "",
                         "",
+                        "",
                         ""
                     ),
                     LocationOfInterest(
-                        Bitmap.createBitmap(100,100,Bitmap.Config.ARGB_8888),
+                        null,
+                        null,
                         "Name 3",
+                        "",
                         "",
                         "",
                         ""
