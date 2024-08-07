@@ -62,27 +62,41 @@ class LocationOfInterest(
 
 }
 
+//TODO: recover coordinates
 fun finalizeLocationData(location: LocationOfInterest): LocationOfInterest {
 
     if(location.page == null) return location
 
-    val pageJSON = getPageJSON(location.page).getOrElse { return location }
+    var pageJSON = getPageJSON(location.page).getOrElse { return location }
         .getJSONObject("parse")
 
-    var thumbnail: Bitmap? = location.fullImageName?.let { retrieveBitmap(it) }
+    val highResImage: Bitmap? = location.fullImageName?.let { retrieveBitmap(it) }
 
-    val wikiData = Jsoup.parse(pageJSON.getJSONObject("text").getString("*"))
+    var wikiData = Jsoup.parse(pageJSON.getJSONObject("text").getString("*"))
 
+    wikiData.getElementsByClass("redirectText")
+        .first()
+        ?.firstElementChild()
+        ?.firstElementChild()
+        ?.attr("href")
+        ?.substring(6)?.let {
+            pageJSON = getPageJSON(it).getOrElse { return location }
+                .getJSONObject("parse")
+
+            wikiData = Jsoup.parse(pageJSON.getJSONObject("text").getString("*"))
+    }
+
+    val portalAddress = wikiData.getElementsByClass("glyphfont").first()?.text()
 
 
     return LocationOfInterest(
-        thumbnail ?: location.thumbnail,
+        highResImage ?: location.thumbnail,
         location.fullImageName,
         location.name,
         location.page,
         location.description,
         location.galaxyAddress,
-        location.portalAddress
+        portalAddress ?: location.portalAddress
     )
 }
 
@@ -115,7 +129,7 @@ class LocationTable(val tableTitle: String, val entries: ArrayList<LocationOfInt
 
 fun getPageJSON(pageName: String) : Result<JSONObject> {
     var retval: Result<JSONObject>
-    val urlConnection = URL("https://nmsgalactichub.miraheze.org/w/api.php?action=parse&page=$pageName&format=json").openConnection() as HttpURLConnection
+    val urlConnection = URL("https://nmsgalactichub.miraheze.org/w/api.php?action=parse&page=$pageName&format=json").openConnection() as HttpsURLConnection
     urlConnection.setRequestProperty("User-Agent", APP_USER_AGENT)
     try {
         val istream = BufferedInputStream(urlConnection.inputStream)
@@ -158,7 +172,22 @@ fun retrievePageLocationTablesType1(pageName: String) : Result<ArrayList<Locatio
                         val entryFullImageName = it.firstElementChild()?.firstElementChild()?.attr("href")?.substring(6)
                         val entryTitle = it.child(2).text()
                         val entryPage = it.child(2).attr("href").substring(6)
-                        val description = it.text().substring(1+entryTitle.length)
+
+                        var description = ""
+
+                        var descriptionCursor = it.child(2).nextSibling()
+                        while(descriptionCursor != null) {
+                            if(descriptionCursor is Element) {
+                                if(descriptionCursor.hasClass("glyphfont") || descriptionCursor.hasClass("glyphfont small-glyph")) {
+                                    descriptionCursor = descriptionCursor.nextSibling()
+                                    continue
+                                }
+                                description += descriptionCursor.text()
+                            }
+                            if(descriptionCursor is TextNode) description += descriptionCursor.text()
+                            descriptionCursor = descriptionCursor.nextSibling()
+                        }
+
 
                         entries.add(LocationOfInterest(
                             entryBitmap,
@@ -245,7 +274,7 @@ fun retrievePageLocationTablesType2(pageName: String) : Result<ArrayList<Locatio
 
 fun loadBitmapFromURL(url: String) : Bitmap? {
     var retval: Bitmap? = null
-    val urlConnection = URL(url).openConnection() as HttpURLConnection
+    val urlConnection = URL(url).openConnection() as HttpsURLConnection
     urlConnection.setRequestProperty("User-Agent", APP_USER_AGENT)
     try {
         retval = BitmapFactory.decodeStream(BufferedInputStream(urlConnection.inputStream))
@@ -272,7 +301,7 @@ fun retrieveBitmap(imageName: String) : Bitmap? {
             .run{ getJSONObject(keys().next())}
             .getJSONArray("imageinfo")
             .getJSONObject(0)
-            .getString("url")).openConnection() as HttpURLConnection
+            .getString("url")).openConnection() as HttpsURLConnection
         urlConnectionImage.setRequestProperty("User-Agent", APP_USER_AGENT)
         try {
             istream = BufferedInputStream(urlConnectionImage.inputStream)
