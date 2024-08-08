@@ -66,17 +66,17 @@ class AddressesOfInterestActivity : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ImgTextButton(image = R.drawable.noun_space_base, text = "Bases", modifier = modifier.fillMaxWidth()) {
-                context.startActivity(Intent(context, BasesOfInterestActivity::class.java)
+                context.startActivity(Intent(context, PageScraperListingActivity::class.java)
                     .putExtra(KEY_PAGE_TO_USE, "Bases")
                     .putExtra(KEY_PAGE_TITLE, "BASES"))
             }
             ImgTextButton(image = R.drawable.noun_space_colony, text = "Colonies", modifier = modifier.fillMaxWidth()) {
-                context.startActivity(Intent(context, BasesOfInterestActivity::class.java)
+                context.startActivity(Intent(context, PageScraperListingActivity::class.java)
                     .putExtra(KEY_PAGE_TO_USE, "Colony_Catalogue")
                     .putExtra(KEY_PAGE_TITLE, "COLONIES"))
             }
             ImgTextButton(image = R.drawable.noun_government_building, text = "Official Bodies", modifier = modifier.fillMaxWidth()) {
-                context.startActivity(Intent(context, BasesOfInterestActivity::class.java)
+                context.startActivity(Intent(context, PageScraperListingActivity::class.java)
                     .putExtra(KEY_PAGE_TO_USE, "Celestial_Bodies")
                     .putExtra(KEY_PAGE_TITLE, "OFFICIAL BODIES"))
             }

@@ -20,7 +20,12 @@
             android:label="@string/title_activity_location_listing_details"
             android:theme="@style/Theme.PortalCalculator" />
         <activity
-            android:name=".BasesOfInterestActivity"
+            android:name=".CreditsAboutActivity"
+            android:exported="false"
+            android:label="@string/title_activity_credits_about"
+            android:theme="@style/Theme.PortalCalculator" />
+        <activity
+            android:name=".PageScraperListingActivity"
             android:exported="false"
             android:label="@string/title_activity_bases_of_interest"
             android:theme="@style/Theme.PortalCalculator" />

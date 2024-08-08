@@ -1,6 +1,7 @@
 package rehac.nick.portalcalculator
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -92,14 +93,42 @@ class MainActivity : ComponentActivity() {
                 val addressesOfInterestActivity = Intent(context, AddressesOfInterestActivity::class.java)
                 context.startActivity(addressesOfInterestActivity)
             }
-
+            Text(
+                "ABOUT // CREDITS",
+                Modifier.clickable {
+                    context.startActivity(Intent(context, CreditsAboutActivity::class.java))
+                },
+                color = MaterialTheme.colorScheme.onPrimary
+            )
         }
     }
 
-    @Preview(showBackground = true)
+    @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
     @Composable
-    fun MainMenuPreview() {
-        MainMenu()
+    fun MainMenuPreviewDay() {
+        PortalCalculatorTheme {
+            // A surface container using the 'background' color from the theme
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background,
+            ) {
+                MainMenu()
+            }
+        }
+    }
+
+    @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+    @Composable
+    fun MainMenuPreviewNight() {
+        PortalCalculatorTheme {
+            // A surface container using the 'background' color from the theme
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background,
+            ) {
+                MainMenu()
+            }
+        }
     }
 }
 

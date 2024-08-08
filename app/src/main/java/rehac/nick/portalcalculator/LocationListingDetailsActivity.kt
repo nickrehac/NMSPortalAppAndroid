@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -28,18 +29,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import rehac.nick.portalcalculator.ui.theme.PortalCalculatorTheme
 
 const val KEY_LOCATION_INFO = "KEY_LOCATION_INFO"
 
 class LocationListingDetailsActivity : ComponentActivity() {
-    lateinit var locationInfo: MutableState<LocationOfInterest>
+    lateinit var viewModel: LocationListingDetailsActivityViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        locationInfo = mutableStateOf(intent.getParcelableExtra(KEY_LOCATION_INFO, LocationOfInterest::class.java)!!)
+        viewModel = ViewModelProvider(this)[LocationListingDetailsActivityViewModel::class.java]
+
+        if(viewModel.locationInfo == null) viewModel.locationInfo = intent.getParcelableExtra(KEY_LOCATION_INFO, LocationOfInterest::class.java)!!
+
         setContent {
             PortalCalculatorTheme {
                 // A surface container using the 'background' color from the theme
@@ -47,18 +54,34 @@ class LocationListingDetailsActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainContent(locationInfo)
+                    MainContent(viewModel.locationInfo!!, viewModel.finalizing)
                 }
             }
         }
-        CoroutineScope(Dispatchers.IO).launch {
-            locationInfo.value = finalizeLocationData(locationInfo.value)
-        }
+
+        if(viewModel.finalizing)
+            CoroutineScope(Dispatchers.IO).launch {
+                viewModel.locationInfo = finalizeLocationData(viewModel.locationInfo!!)
+                viewModel.finalizing = false
+
+                withContext(Dispatchers.Main) {
+                    setContent {
+                        PortalCalculatorTheme {
+                            // A surface container using the 'background' color from the theme
+                            Surface(
+                                modifier = Modifier.fillMaxSize(),
+                                color = MaterialTheme.colorScheme.background
+                            ) {
+                                MainContent(viewModel.locationInfo!!, viewModel.finalizing)
+                            }
+                        }
+                    }
+                }
+            }
     }
 
     @Composable
-    fun MainContent(locationMutableState: MutableState<LocationOfInterest>) {
-        val location = locationMutableState.value
+    fun MainContent(location: LocationOfInterest, finalizing: Boolean) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -76,7 +99,9 @@ class LocationListingDetailsActivity : ComponentActivity() {
                 Image(
                     location.thumbnail.asImageBitmap(),
                     null,
-                    modifier = Modifier.fillMaxWidth().aspectRatio(16f/9f)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 9f)
                 )
             } else {
                 Image(
@@ -86,7 +111,9 @@ class LocationListingDetailsActivity : ComponentActivity() {
                         MaterialTheme.colorScheme.primary,
                         BlendMode.SrcIn
                     ),
-                    modifier = Modifier.fillMaxWidth().aspectRatio(16f/9f)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 9f)
                 )
             }
             Text(
@@ -100,6 +127,9 @@ class LocationListingDetailsActivity : ComponentActivity() {
             Text(
                 "Portal Address: ${location.portalAddress?:"Unknown"}"
             )
+            if(finalizing) {
+                LinearProgressIndicator()
+            }
         }
     }
 
@@ -107,7 +137,7 @@ class LocationListingDetailsActivity : ComponentActivity() {
     @Preview(showBackground = true)
     @Composable
     fun MainContentPreview() {
-        locationInfo = mutableStateOf(LocationOfInterest(
+        val locationInfo = LocationOfInterest(
             null,
             "",
             "NAME",
@@ -115,11 +145,15 @@ class LocationListingDetailsActivity : ComponentActivity() {
             "Description this is a description hell yeah wwooooooo",
             "0000:0000:0000:0000",
             "FFFFFFFFFFFF"
-        ))
+        )
 
         PortalCalculatorTheme {
-            MainContent(locationInfo)
+            MainContent(locationInfo, true)
         }
     }
 }
 
+data class LocationListingDetailsActivityViewModel(
+    var locationInfo: LocationOfInterest? = null,
+    var finalizing: Boolean = true
+) : ViewModel()

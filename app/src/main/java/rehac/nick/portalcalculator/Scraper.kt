@@ -64,13 +64,21 @@ class LocationOfInterest(
 
 //TODO: recover coordinates
 fun finalizeLocationData(location: LocationOfInterest): LocationOfInterest {
+    val highResImage: Bitmap? = location.fullImageName?.let { retrieveBitmap(it) }
 
-    if(location.page == null) return location
+    if(location.page == null || location.page.contains("redlink")) return LocationOfInterest(
+        highResImage ?: location.thumbnail,
+        location.fullImageName,
+        location.name,
+        location.page,
+        location.description,
+        location.galaxyAddress,
+        location.portalAddress
+    )
 
     var pageJSON = getPageJSON(location.page).getOrElse { return location }
         .getJSONObject("parse")
 
-    val highResImage: Bitmap? = location.fullImageName?.let { retrieveBitmap(it) }
 
     var wikiData = Jsoup.parse(pageJSON.getJSONObject("text").getString("*"))
 

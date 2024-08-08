@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +39,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.get
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -48,28 +52,36 @@ import java.net.UnknownHostException
 const val KEY_PAGE_TO_USE = "KEY_PAGE_TO_USE"
 const val KEY_PAGE_TITLE = "KEY_PAGE_TITLE"
 
-class BasesOfInterestActivity : ComponentActivity() {
-    private var basesTablesList: ArrayList<LocationTable>? = null
-    private var pageTitle = ""
+class PageScraperListingActivity : ComponentActivity() {
+
+    private lateinit var viewModel: PageScraperListingActivityViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
+        viewModel = ViewModelProvider(this)[PageScraperListingActivityViewModel::class.java]
         super.onCreate(savedInstanceState)
         overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, R.anim.slide_in_right, R.anim.slide_out_left)
         overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+
+        if(viewModel.basesTablesList != null) {
+            setContent { MainContent(viewModel.basesTablesList!!) }
+            return
+        }
+
         setContent {
             MainContentLoading()
         }
+
         val page = intent.getStringExtra(KEY_PAGE_TO_USE)!!
-        pageTitle = intent.getStringExtra(KEY_PAGE_TITLE)!!
+        viewModel.pageTitle = intent.getStringExtra(KEY_PAGE_TITLE)!!
         CoroutineScope(Dispatchers.IO).launch {
             if(page == "Colony_Catalogue") {
                 retrievePageLocationTablesType2(page)
             } else {
                 retrievePageLocationTablesType1(page)
             }.onSuccess {
-                basesTablesList = it
+                viewModel.basesTablesList = it
                 withContext(Dispatchers.Main) {
                     setContent {
-                        MainContent(wikiData = basesTablesList!!)
+                        MainContent(wikiData = viewModel.basesTablesList!!)
                     }
                 }
             }.onFailure {
@@ -115,13 +127,15 @@ class BasesOfInterestActivity : ComponentActivity() {
                 color = MaterialTheme.colorScheme.background
             ) {
                 Column(
-                    Modifier.fillMaxSize().padding(15.dp),
+                    Modifier
+                        .fillMaxSize()
+                        .padding(15.dp),
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Spacer(Modifier.height(30.dp))
                     Text(
-                        pageTitle,
+                        viewModel.pageTitle,
                         fontSize = 50.sp,
                         lineHeight = 50.sp,
                         textAlign = TextAlign.Center
@@ -145,7 +159,7 @@ class BasesOfInterestActivity : ComponentActivity() {
                                               context.startActivity(Intent(context, LocationListingDetailsActivity::class.java)
                                                   .putExtra(KEY_LOCATION_INFO, entry))
                                     },
-                                    shape = MaterialTheme.shapes.extraSmall,
+                                    shape = MaterialTheme.shapes.small,
                                     modifier = Modifier.padding(10.dp)
                                 ) {
                                     Row(
@@ -168,7 +182,8 @@ class BasesOfInterestActivity : ComponentActivity() {
                                             Image(
                                                 entry.thumbnail.asImageBitmap(),
                                                 null,
-                                                modifier = Modifier.clip(RoundedCornerShape(10.dp))
+                                                modifier = Modifier
+                                                    .clip(RoundedCornerShape(10.dp))
                                                     .height(80.dp)
                                                     .width(140.dp),
                                                 contentScale = ContentScale.Fit
@@ -312,5 +327,10 @@ class BasesOfInterestActivity : ComponentActivity() {
         MainContentFailed(error = java.lang.Exception("Sample Error Message very very bad blah blah lorem ipsum etc etc"))
     }
 }
+
+data class PageScraperListingActivityViewModel(
+    var basesTablesList: ArrayList<LocationTable>? = null,
+    var pageTitle: String = ""
+) : ViewModel()
 
 
