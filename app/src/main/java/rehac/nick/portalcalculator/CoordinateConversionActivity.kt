@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -53,18 +55,27 @@ class CoordinateConversionActivity : ComponentActivity() {
                 color = MaterialTheme.colorScheme.background
             ) {
 
-                Column {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Text(
                         "COORDINATE CONVERSION",
+                        textAlign = TextAlign.Center,
                         lineHeight = 50.sp,
                         fontSize = 50.sp
                     )
                     Spacer(
                         Modifier.height(50.dp)
                     )
-                    GalacticAddressTextField() {
-                        viewModel.galacticAddress.value = it
+                    Column {
+                        Text("Enter Galactic Coordinates")
+                        GalacticAddressTextField() {
+                            viewModel.galacticAddress.value = it
+                        }
                     }
+                    Spacer(
+                        Modifier.height(50.dp)
+                    )
                     if(viewModel.galacticAddress.value.length == 16) {
                         Text(viewModel.galacticAddress.value)
                     }
@@ -78,7 +89,7 @@ class CoordinateConversionActivity : ComponentActivity() {
     @Composable
     fun MainContentPreview() {
         viewModel = CoordinateConversionViewModel(
-            galacticAddress = mutableStateOf("22451234")
+            galacticAddress = mutableStateOf("0123456789abcdef")
         )
         MainContent()
     }
