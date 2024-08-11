@@ -121,11 +121,12 @@ class LocationListingDetailsActivity : ComponentActivity() {
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                 color = MaterialTheme.colorScheme.onPrimary
             )
+            val unknownOrLoading = if(finalizing) "LOADING" else "UNKNOWN"
             Text(
-                "Galaxy Address: ${location.galaxyAddress?:"Unknown"}"
+                "Galaxy Address: ${location.galaxyAddress?:unknownOrLoading}"
             )
             Text(
-                "Portal Address: ${location.portalAddress?:"Unknown"}"
+                "Portal Address: ${location.portalAddress?:unknownOrLoading}"
             )
             if(finalizing) {
                 LinearProgressIndicator()
