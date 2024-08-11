@@ -78,6 +78,7 @@ class CoordinateConversionActivity : ComponentActivity() {
                     )
                     if(viewModel.galacticAddress.value.length == 16) {
                         Text(viewModel.galacticAddress.value)
+                        //TODO: Display actual conversion with large glyph panel
                     }
                 }
             }

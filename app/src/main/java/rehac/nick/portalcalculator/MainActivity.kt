@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,8 +25,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -56,16 +59,20 @@ class MainActivity : ComponentActivity() {
     fun MainMenu(modifier: Modifier = Modifier) {
         val context = LocalContext.current
         Column(
-            modifier = modifier.fillMaxSize()
+            modifier = modifier
+                .fillMaxSize()
                 .layout { measurable, constraints ->
-                        val placeable = measurable.measure(constraints.copy(
+                    val placeable = measurable.measure(
+                        constraints.copy(
                             minWidth = 100.dp.roundToPx(),
                             maxWidth = 800.dp.roundToPx()
-                        ))
+                        )
+                    )
                     layout(placeable.width, placeable.height) {
-                        placeable.place(0,0)
+                        placeable.place(0, 0)
                     }
-                }.width(IntrinsicSize.Max),
+                }
+                .width(IntrinsicSize.Max),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -154,6 +161,74 @@ fun ImgTextButton(image: Int, text: String, modifier: Modifier = Modifier, onCli
                 fontSize = TextUnit(25f, TextUnitType.Sp),
                 color = MaterialTheme.colorScheme.onPrimary
             )
+        }
+    }
+}
+
+@Composable
+fun AddressDisplayPanel(address: String) {
+    Row() {
+        for(glyph in address) {
+
+        }
+    }
+}
+
+val GLYPH_RESOURCES = arrayOf(
+    R.drawable.glyph0,
+    R.drawable.glyph1,
+    R.drawable.glyph2,
+    R.drawable.glyph3,
+    R.drawable.glyph4,
+    R.drawable.glyph5,
+    R.drawable.glyph6,
+    R.drawable.glyph7,
+    R.drawable.glyph8,
+    R.drawable.glyph9,
+    R.drawable.glypha,
+    R.drawable.glyphb,
+    R.drawable.glyphc,
+    R.drawable.glyphd,
+    R.drawable.glyphe,
+    R.drawable.glyphf,
+)
+@Composable
+fun GlyphImage(glyph: Char, modifier: Modifier = Modifier) {
+    val glyphPainter = if(glyph.isLetter() && glyph.uppercaseChar() < 'G') {
+        painterResource(id = GLYPH_RESOURCES[10 + glyph.uppercaseChar().code - 'A'.code])
+    } else if(glyph.isDigit()) {
+        painterResource(id = GLYPH_RESOURCES[glyph.digitToInt()])
+    } else {
+        painterResource(id = R.drawable.noun_picture_rectangle)
+    }
+    Image(
+        painter = glyphPainter,
+        contentDescription = "Glyph $glyph",
+        modifier = modifier,
+        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
+        contentScale = ContentScale.Fit
+    )
+}
+@Composable
+fun PortalAddressBox(portalAddress: String) {
+    if (portalAddress.length == 12) {
+        Box(
+            modifier = Modifier
+                .shadow(5.dp, RoundedCornerShape(5.dp))
+                .background(MaterialTheme.colorScheme.primary)
+        ) {
+            Row(
+                Modifier
+                    .padding(5.dp)
+                    .fillMaxSize()
+            ) {
+                for (glyph in portalAddress) {
+                    GlyphImage(
+                        glyph,
+                        Modifier.weight(1f)
+                    )
+                }
+            }
         }
     }
 }

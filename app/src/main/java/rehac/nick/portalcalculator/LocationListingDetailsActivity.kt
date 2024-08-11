@@ -6,15 +6,28 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,8 +35,11 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -85,7 +101,7 @@ class LocationListingDetailsActivity : ComponentActivity() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(30.dp)
+                .padding(horizontal = 30.dp, vertical = 10.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -95,6 +111,7 @@ class LocationListingDetailsActivity : ComponentActivity() {
                 lineHeight = 60.sp,
                 color = MaterialTheme.colorScheme.onPrimary
             )
+            Spacer(Modifier.height(20.dp))
             if(location.thumbnail != null) {
                 Image(
                     location.thumbnail.asImageBitmap(),
@@ -116,11 +133,13 @@ class LocationListingDetailsActivity : ComponentActivity() {
                         .aspectRatio(16f / 9f)
                 )
             }
+            Spacer(Modifier.height(20.dp))
             Text(
                 location.description,
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                 color = MaterialTheme.colorScheme.onPrimary
             )
+            Spacer(Modifier.height(50.dp))
             val unknownOrLoading = if(finalizing) "LOADING" else "UNKNOWN"
             Text(
                 "Galaxy Address: ${location.galaxyAddress?:unknownOrLoading}"
@@ -131,6 +150,8 @@ class LocationListingDetailsActivity : ComponentActivity() {
             if(finalizing) {
                 LinearProgressIndicator()
             }
+            Spacer(Modifier.height(20.dp))
+            location.portalAddress?.let{PortalAddressBox(portalAddress = it)}
         }
     }
 
@@ -145,7 +166,7 @@ class LocationListingDetailsActivity : ComponentActivity() {
             "PAGE",
             "Description this is a description hell yeah wwooooooo",
             "0000:0000:0000:0000",
-            "FFFFFFFFFFFF"
+            "0123456789ef"
         )
 
         PortalCalculatorTheme {
