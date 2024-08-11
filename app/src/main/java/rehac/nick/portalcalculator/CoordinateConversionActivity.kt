@@ -34,18 +34,19 @@ import rehac.nick.portalcalculator.ui.theme.PortalCalculatorTheme
 import kotlin.math.min
 
 class CoordinateConversionActivity : ComponentActivity() {
-    val viewModel: CoordinateConversionViewModel by lazy{ViewModelProvider(this)[CoordinateConversionViewModel::class.java]}
+    private lateinit var viewModel: CoordinateConversionViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel = ViewModelProvider(this)[CoordinateConversionViewModel::class.java]
         overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, R.anim.slide_in_right, R.anim.slide_out_left)
         overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, android.R.anim.slide_in_left, android.R.anim.slide_out_right)
         setContent {
-            MainContent(galacticAddress = viewModel.galacticAddress)
+            MainContent()
         }
     }
 
     @Composable
-    fun MainContent(modifier: Modifier = Modifier, galacticAddress: MutableState<String>) {
+    fun MainContent(modifier: Modifier = Modifier) {
         PortalCalculatorTheme {
             Surface(
                 modifier = Modifier.fillMaxSize(),
@@ -55,38 +56,18 @@ class CoordinateConversionActivity : ComponentActivity() {
                 Column {
                     Text(
                         "COORDINATE CONVERSION",
-                        Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center,
                         lineHeight = 50.sp,
                         fontSize = 50.sp
                     )
                     Spacer(
                         Modifier.height(50.dp)
                     )
-                    val textFieldValue = remember {mutableStateOf(TextFieldValue())}
-                    OutlinedTextField(
-                        value = textFieldValue.value,
-                        placeholder = { Text("0123:4567:89AB:CDEF") },
-                        onValueChange = { change ->
-                            val deformatted = change.text.uppercase()
-                                .filter { it.isDigit() || (it.isLetter() && (it < 'G')) }
-                                .take(16).also {
-                                    galacticAddress.value = it
-                                }
-                            val reformatted = deformatted.let {
-                                var retval = ""
-                                for(i in it.indices) {
-                                    retval += it[i]
-                                    if((i + 1) % 4 == 0 && i != 15) retval += ":"
-                                }
-                                retval
-                            }
-                            textFieldValue.value = change.copy(
-                                reformatted,
-                                if(change.selection.start == change.text.length && change.text.length >= textFieldValue.value.text.length) TextRange(reformatted.length) else change.selection
-                            )
-                        }
-                    )
+                    GalacticAddressTextField() {
+                        viewModel.galacticAddress.value = it
+                    }
+                    if(viewModel.galacticAddress.value.length == 16) {
+                        Text(viewModel.galacticAddress.value)
+                    }
                 }
             }
         }
@@ -96,8 +77,38 @@ class CoordinateConversionActivity : ComponentActivity() {
     @Preview(showBackground = true)
     @Composable
     fun MainContentPreview() {
-        val galacticAddress = mutableStateOf("22451234")
-        MainContent(galacticAddress = galacticAddress)
+        viewModel = CoordinateConversionViewModel(
+            galacticAddress = mutableStateOf("22451234")
+        )
+        MainContent()
+    }
+
+    @Composable
+    fun GalacticAddressTextField(onChange: (String) -> Unit) {
+        val textFieldValue = remember {mutableStateOf(TextFieldValue())}
+        OutlinedTextField(
+            value = textFieldValue.value,
+            placeholder = { Text("0123:4567:89AB:CDEF") },
+            onValueChange = { change ->
+                val deformatted = change.text.uppercase()
+                    .filter { it.isDigit() || (it.isLetter() && (it < 'G')) }
+                    .take(16).also {
+                        onChange(it)
+                    }
+                val reformatted = deformatted.let {
+                    var retval = ""
+                    for(i in it.indices) {
+                        retval += it[i]
+                        if((i + 1) % 4 == 0 && i != 15) retval += ":"
+                    }
+                    retval
+                }
+                textFieldValue.value = change.copy(
+                    reformatted,
+                    if(change.selection.start == change.text.length && change.text.length >= textFieldValue.value.text.length) TextRange(reformatted.length) else change.selection
+                )
+            }
+        )
     }
 }
 
