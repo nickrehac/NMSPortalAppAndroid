@@ -321,8 +321,6 @@ fun retrieveBitmap(imageName: String) : Bitmap? {
         }
     } catch(e: Exception) {
         Log.e("retrieveImage", e.toString())
-        Log.d("retrieveImage", "response code: ${urlConnectionImageMetadata.responseCode}")
-        Log.d("retrieveImage", "response message: ${urlConnectionImageMetadata.responseMessage}")
     }
 
     return retval
